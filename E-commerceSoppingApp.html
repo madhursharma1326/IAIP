@@ -1,0 +1,1669 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ShopSphere</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <template id="icon-sprite">
+      <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+        <symbol id="icon-search" viewBox="0 0 24 24"><path d="m21 21-4.35-4.35"/><circle cx="11" cy="11" r="7"/></symbol>
+        <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"/></symbol>
+        <symbol id="icon-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h8.9a2 2 0 0 0 2-1.58l1.65-7.43H5.12"/></symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21a8 8 0 1 0-16 0"/><circle cx="12" cy="7" r="4"/></symbol>
+        <symbol id="icon-box" viewBox="0 0 24 24"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8 9 5v8l9-5V8"/><path d="M12 13v8"/></symbol>
+        <symbol id="icon-close" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+        <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+        <symbol id="icon-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24"><path d="m20 6-11 11-5-5"/></symbol>
+        <symbol id="icon-truck" viewBox="0 0 24 24"><path d="M14 18V6H3v12h11Z"/><path d="M14 9h4l3 4v5h-7V9Z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+      </svg>
+    </template>
+   
+  </body>
+</html>
+
+<style>
+
+:root {
+  color-scheme: light;
+  --ink: #1d2433;
+  --muted: #667085;
+  --line: #dde3ea;
+  --panel: #ffffff;
+  --soft: #f5f7fa;
+  --brand: #0f766e;
+  --brand-strong: #0b5f59;
+  --accent: #b42318;
+  --gold: #b7791f;
+  --blue: #2563eb;
+  --shadow: 0 18px 50px rgba(29, 36, 51, 0.11);
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: #eef2f6;
+  letter-spacing: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: 220px minmax(220px, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 14px clamp(16px, 4vw, 44px);
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+}
+
+.brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: #fff;
+  background: var(--brand);
+  border-radius: 8px;
+}
+
+.search-wrap {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 12px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.search-wrap input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.icon-button,
+.text-button,
+.primary-button,
+.secondary-button,
+.danger-button {
+  min-height: 40px;
+  border-radius: 8px;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.icon-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  color: var(--ink);
+  background: var(--soft);
+  border: 1px solid var(--line);
+}
+
+.icon-button.active {
+  color: var(--brand);
+  border-color: rgba(15, 118, 110, 0.35);
+  background: #e6f4f1;
+}
+
+.icon-button:hover,
+.text-button:hover,
+.primary-button:hover,
+.secondary-button:hover {
+  transform: translateY(-1px);
+}
+
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -5px;
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  color: #fff;
+  background: var(--accent);
+  border: 2px solid #fff;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 22px;
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding: 24px clamp(16px, 4vw, 44px) 44px;
+}
+
+.sidebar {
+  align-self: start;
+  position: sticky;
+  top: 86px;
+  display: grid;
+  gap: 18px;
+}
+
+.filter-panel,
+.auth-panel,
+.checkout-panel,
+.drawer,
+.modal-panel,
+.tracking-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(29, 36, 51, 0.06);
+}
+
+.filter-panel,
+.auth-panel,
+.tracking-panel {
+  padding: 16px;
+}
+
+.panel-title {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.category-list {
+  display: grid;
+  gap: 8px;
+}
+
+.category-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 10px;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.category-button.active,
+.category-button:hover {
+  background: var(--soft);
+  border-color: var(--line);
+}
+
+.range-row,
+.select-row {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.range-row input {
+  accent-color: var(--brand);
+}
+
+.select-row select,
+.form-grid input,
+.form-grid textarea {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 10px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  outline-color: rgba(15, 118, 110, 0.35);
+}
+
+.content {
+  min-width: 0;
+}
+
+.hero-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(270px, 0.95fr);
+  gap: 24px;
+  align-items: center;
+  min-height: 270px;
+  margin-bottom: 22px;
+  padding: clamp(22px, 4vw, 42px);
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(105deg, rgba(13, 49, 47, 0.92), rgba(13, 49, 47, 0.58)),
+    url("https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=1400&q=80") center/cover;
+  border-radius: var(--radius);
+}
+
+.hero-band h1 {
+  max-width: 650px;
+  margin: 0 0 10px;
+  font-size: clamp(2.1rem, 6vw, 4.3rem);
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.hero-band p {
+  max-width: 550px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 1.05rem;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-self: end;
+}
+
+.stat-tile {
+  min-height: 86px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.stat-tile strong {
+  display: block;
+  font-size: 1.25rem;
+}
+
+.stat-tile span {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.82rem;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.toolbar h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 16px;
+}
+
+.product-card {
+  display: grid;
+  grid-template-rows: 190px auto;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 34px rgba(29, 36, 51, 0.06);
+}
+
+.product-media {
+  position: relative;
+  background: #dce5ea;
+}
+
+.product-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.quick-heart {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.product-info {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.product-title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.product-title-row h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.price {
+  flex: 0 0 auto;
+  font-weight: 800;
+}
+
+.rating-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.card-actions {
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  gap: 8px;
+  align-items: center;
+}
+
+.primary-button,
+.secondary-button,
+.text-button,
+.danger-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  font-weight: 800;
+}
+
+.primary-button {
+  color: #fff;
+  background: var(--brand);
+}
+
+.primary-button:hover {
+  background: var(--brand-strong);
+}
+
+.secondary-button {
+  color: var(--ink);
+  background: var(--soft);
+  border: 1px solid var(--line);
+}
+
+.text-button {
+  color: var(--brand);
+  background: transparent;
+}
+
+.danger-button {
+  color: #fff;
+  background: var(--accent);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  background: rgba(13, 18, 28, 0.44);
+}
+
+.overlay.open {
+  display: block;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(440px, 100vw);
+  height: 100vh;
+  transform: translateX(105%);
+  transition: transform 0.2s ease;
+  border-radius: 0;
+}
+
+.drawer.open {
+  transform: translateX(0);
+}
+
+.drawer-header,
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.drawer-header h2,
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.drawer-body {
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+}
+
+.drawer-footer {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.cart-item,
+.order-item,
+.wishlist-item {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.cart-item img,
+.order-item img,
+.wishlist-item img {
+  width: 78px;
+  height: 78px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.line-title {
+  margin: 0 0 4px;
+  font-weight: 800;
+}
+
+.line-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.qty-stepper {
+  display: inline-grid;
+  grid-template-columns: 34px 34px 34px;
+  align-items: center;
+  height: 34px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.qty-stepper button {
+  height: 34px;
+  background: var(--soft);
+}
+
+.qty-stepper span {
+  text-align: center;
+  font-weight: 800;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.summary-row.total {
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.modal-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: none;
+  place-items: center;
+  padding: 18px;
+}
+
+.modal-wrap.open {
+  display: grid;
+}
+
+.modal-panel {
+  width: min(860px, 100%);
+  max-height: min(760px, 94vh);
+  overflow: auto;
+  box-shadow: var(--shadow);
+}
+
+.modal-body {
+  padding: 16px;
+}
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.92fr) minmax(260px, 1.08fr);
+  gap: 22px;
+}
+
+.detail-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.detail-copy h2 {
+  margin: 0 0 8px;
+  font-size: 1.55rem;
+}
+
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 9px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.form-grid label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.form-grid .span-2 {
+  grid-column: 1 / -1;
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  background: var(--soft);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.auth-tabs button {
+  min-height: 36px;
+  background: transparent;
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+.auth-tabs button.active {
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(29, 36, 51, 0.08);
+}
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  padding: 22px;
+  color: var(--muted);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+}
+
+.toast-stack {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 100;
+  display: grid;
+  gap: 10px;
+  width: min(360px, calc(100vw - 36px));
+}
+
+.toast {
+  padding: 12px 14px;
+  color: #fff;
+  background: #1d2433;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.checkout-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 320px;
+  gap: 16px;
+}
+
+.checkout-panel {
+  padding: 16px;
+}
+
+.sandbox-box {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  background: #fff8e6;
+  border: 1px solid #f4d48b;
+  border-radius: 8px;
+  color: #5f4208;
+  font-size: 0.9rem;
+}
+
+.order-card {
+  padding: 14px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.progress {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.progress-step {
+  min-height: 8px;
+  background: var(--line);
+  border-radius: 999px;
+}
+
+.progress-step.done {
+  background: var(--brand);
+}
+
+@media (max-width: 960px) {
+  .topbar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .search-wrap {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .filter-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .filter-panel .panel-title,
+  .filter-panel .category-list {
+    grid-column: 1 / -1;
+  }
+
+  .hero-band,
+  .detail-layout,
+  .checkout-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .topbar {
+    padding: 12px;
+  }
+
+  .brand span:last-child,
+  .nav-label {
+    display: none;
+  }
+
+  .main-grid {
+    padding: 14px 12px 32px;
+  }
+
+  .hero-band {
+    min-height: 360px;
+    align-content: end;
+  }
+
+  .hero-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-panel,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+
+
+ <script >
+
+const products = [
+  {
+    id: "p-101",
+    name: "AeroFit Running Shoes",
+    category: "Fashion",
+    price: 89,
+    rating: 4.8,
+    stock: 18,
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80",
+    description: "Lightweight knit runners with a cushioned midsole and grippy road outsole.",
+    specs: ["Breathable mesh", "Foam midsole", "6 colorways"],
+  },
+  {
+    id: "p-102",
+    name: "Nordic Ceramic Dinner Set",
+    category: "Home",
+    price: 124,
+    rating: 4.6,
+    stock: 10,
+    image: "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=900&q=80",
+    description: "Six place settings with satin glaze bowls, plates, and mugs for everyday hosting.",
+    specs: ["24 pieces", "Dishwasher safe", "Matte glaze"],
+  },
+  {
+    id: "p-103",
+    name: "Pulse Pro Headphones",
+    category: "Electronics",
+    price: 159,
+    rating: 4.9,
+    stock: 24,
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80",
+    description: "Wireless over-ear headphones with active noise cancellation and 38-hour battery life.",
+    specs: ["ANC", "USB-C", "Low-latency mode"],
+  },
+  {
+    id: "p-104",
+    name: "Everyday Linen Shirt",
+    category: "Fashion",
+    price: 58,
+    rating: 4.4,
+    stock: 33,
+    image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=900&q=80",
+    description: "Relaxed linen button-up cut for warm days, layering, and easy travel packing.",
+    specs: ["100% linen", "Regular fit", "Machine washable"],
+  },
+  {
+    id: "p-105",
+    name: "Smart Brew Coffee Maker",
+    category: "Appliances",
+    price: 212,
+    rating: 4.7,
+    stock: 8,
+    image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80",
+    description: "Programmable coffee brewer with bloom mode, thermal carafe, and app scheduling.",
+    specs: ["1.4L carafe", "Wi-Fi timer", "Reusable filter"],
+  },
+  {
+    id: "p-106",
+    name: "Studio Desk Lamp",
+    category: "Home",
+    price: 76,
+    rating: 4.5,
+    stock: 15,
+    image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=80",
+    description: "Adjustable aluminum lamp with warm-to-cool light presets and touch dimming.",
+    specs: ["5 brightness levels", "USB port", "Flicker-free"],
+  },
+  {
+    id: "p-107",
+    name: "TrailCore Backpack",
+    category: "Travel",
+    price: 138,
+    rating: 4.8,
+    stock: 19,
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=900&q=80",
+    description: "Weather-ready 32L pack with laptop protection, compression straps, and bottle storage.",
+    specs: ["32L", "Rain cover", "16-inch laptop sleeve"],
+  },
+  {
+    id: "p-108",
+    name: "Flex Yoga Mat",
+    category: "Fitness",
+    price: 42,
+    rating: 4.3,
+    stock: 41,
+    image: "https://images.unsplash.com/photo-1592432678016-e910b452f9a2?auto=format&fit=crop&w=900&q=80",
+    description: "Non-slip mat with dense joint support for studio sessions and home practice.",
+    specs: ["6mm cushion", "Latex-free", "Carry strap"],
+  },
+  {
+    id: "p-109",
+    name: "Orbit Smartwatch",
+    category: "Electronics",
+    price: 249,
+    rating: 4.7,
+    stock: 12,
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80",
+    description: "Health-forward smartwatch with GPS, sleep insights, and seven-day battery life.",
+    specs: ["GPS", "Water resistant", "AMOLED display"],
+  },
+  {
+    id: "p-110",
+    name: "Carry-On Spinner",
+    category: "Travel",
+    price: 184,
+    rating: 4.6,
+    stock: 14,
+    image: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?auto=format&fit=crop&w=900&q=80",
+    description: "Hard-shell cabin luggage with silent wheels, compression divider, and TSA lock.",
+    specs: ["38L", "TSA lock", "Scratch-resistant shell"],
+  },
+  {
+    id: "p-111",
+    name: "Core Strength Kit",
+    category: "Fitness",
+    price: 96,
+    rating: 4.5,
+    stock: 22,
+    image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=900&q=80",
+    description: "Compact resistance training kit with bands, handles, sliders, and door anchor.",
+    specs: ["5 bands", "Door anchor", "Travel pouch"],
+  },
+  {
+    id: "p-112",
+    name: "AirFry Compact Oven",
+    category: "Appliances",
+    price: 149,
+    rating: 4.4,
+    stock: 17,
+    image: "https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=900&q=80",
+    description: "Countertop air fryer oven with convection heat, toast settings, and easy-clean tray.",
+    specs: ["12L", "8 presets", "Dishwasher-safe tray"],
+  },
+];
+
+const categories = ["All", ...new Set(products.map((product) => product.category))];
+const shipping = 8;
+const state = {
+  user: read("shopsphere-user", null),
+  users: read("shopsphere-users", []),
+  cart: read("shopsphere-cart", {}),
+  wishlist: read("shopsphere-wishlist", []),
+  orders: read("shopsphere-orders", []),
+  search: "",
+  category: "All",
+  maxPrice: 260,
+  sort: "featured",
+  drawer: null,
+  modal: null,
+  authMode: "login",
+};
+
+const app = document.querySelector("#app");
+document.body.append(document.querySelector("#icon-sprite").content.cloneNode(true));
+
+function read(key, fallback) {
+  try {
+    return JSON.parse(localStorage.getItem(key)) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function write(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function money(value) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+}
+
+function icon(name) {
+  return `<svg class="icon" aria-hidden="true"><use href="#icon-${name}"></use></svg>`;
+}
+
+function cartLines() {
+  return Object.entries(state.cart)
+    .map(([id, qty]) => ({ product: products.find((item) => item.id === id), qty }))
+    .filter((line) => line.product);
+}
+
+function totals() {
+  const subtotal = cartLines().reduce((sum, line) => sum + line.product.price * line.qty, 0);
+  const tax = subtotal * 0.07;
+  const delivery = subtotal > 0 ? shipping : 0;
+  return { subtotal, tax, delivery, total: subtotal + tax + delivery };
+}
+
+function persist() {
+  write("shopsphere-user", state.user);
+  write("shopsphere-users", state.users);
+  write("shopsphere-cart", state.cart);
+  write("shopsphere-wishlist", state.wishlist);
+  write("shopsphere-orders", state.orders);
+}
+
+function filteredProducts() {
+  const term = state.search.trim().toLowerCase();
+  let items = products.filter((product) => {
+    const matchesText = [product.name, product.category, product.description].join(" ").toLowerCase().includes(term);
+    const matchesCategory = state.category === "All" || product.category === state.category;
+    return matchesText && matchesCategory && product.price <= state.maxPrice;
+  });
+
+  if (state.sort === "price-low") items = items.sort((a, b) => a.price - b.price);
+  if (state.sort === "price-high") items = items.sort((a, b) => b.price - a.price);
+  if (state.sort === "rating") items = items.sort((a, b) => b.rating - a.rating);
+  return items;
+}
+
+function render() {
+  const itemCount = Object.values(state.cart).reduce((sum, qty) => sum + qty, 0);
+  app.innerHTML = `
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark">${icon("box")}</span><span>ShopSphere</span></div>
+        <label class="search-wrap" aria-label="Search products">
+          ${icon("search")}
+          <input id="searchInput" value="${escapeHtml(state.search)}" placeholder="Search products, categories, or features" />
+        </label>
+        <nav class="nav-actions" aria-label="Shopping actions">
+          <button class="icon-button ${state.drawer === "wishlist" ? "active" : ""}" data-action="open-drawer" data-drawer="wishlist" title="Wishlist">
+            ${icon("heart")} ${state.wishlist.length ? `<span class="badge">${state.wishlist.length}</span>` : ""}
+          </button>
+          <button class="icon-button ${state.drawer === "cart" ? "active" : ""}" data-action="open-drawer" data-drawer="cart" title="Cart">
+            ${icon("cart")} ${itemCount ? `<span class="badge">${itemCount}</span>` : ""}
+          </button>
+          <button class="icon-button ${state.drawer === "orders" ? "active" : ""}" data-action="open-drawer" data-drawer="orders" title="Order tracking">${icon("truck")}</button>
+          <button class="secondary-button" data-action="open-drawer" data-drawer="auth" title="Account">
+            ${icon("user")} <span class="nav-label">${state.user ? state.user.name.split(" ")[0] : "Sign in"}</span>
+          </button>
+        </nav>
+      </header>
+      <main class="main-grid">
+        <aside class="sidebar">
+          ${filterPanel()}
+          ${trackingPanel()}
+        </aside>
+        <section class="content">
+          <div class="hero-band">
+            <div>
+              <h1>Curated shopping, fast checkout.</h1>
+              <p>Browse daily essentials, premium electronics, travel gear, and home upgrades in one polished store experience.</p>
+            </div>
+            <div class="hero-stats">
+              <div class="stat-tile"><strong>${products.length}</strong><span>Products</span></div>
+              <div class="stat-tile"><strong>Sandbox</strong><span>Payment mode</span></div>
+              <div class="stat-tile"><strong>${state.orders.length}</strong><span>Orders tracked</span></div>
+            </div>
+          </div>
+          <div class="toolbar">
+            <div>
+              <h2>Product Listing</h2>
+              <div class="muted">${filteredProducts().length} products found</div>
+            </div>
+            <button class="primary-button" data-action="open-drawer" data-drawer="cart">${icon("cart")} Checkout</button>
+          </div>
+          <div class="product-grid">${productCards()}</div>
+        </section>
+      </main>
+      ${drawer()}
+      ${modal()}
+      <div class="overlay ${state.drawer || state.modal ? "open" : ""}" data-action="close-all"></div>
+      <div class="toast-stack" id="toastStack"></div>
+    </div>
+  `;
+  bindInputs();
+}
+
+function filterPanel() {
+  return `
+    <section class="filter-panel" aria-label="Product filters">
+      <h2 class="panel-title">Filters</h2>
+      <div class="category-list">
+        ${categories
+          .map(
+            (category) => `
+              <button class="category-button ${state.category === category ? "active" : ""}" data-action="set-category" data-category="${category}">
+                <span>${category}</span><span>${category === "All" ? products.length : products.filter((product) => product.category === category).length}</span>
+              </button>
+            `,
+          )
+          .join("")}
+      </div>
+      <label class="range-row">
+        <span class="panel-title">Max price: ${money(state.maxPrice)}</span>
+        <input id="priceRange" type="range" min="40" max="260" step="5" value="${state.maxPrice}" />
+      </label>
+      <label class="select-row">
+        <span class="panel-title">Sort</span>
+        <select id="sortSelect">
+          <option value="featured" ${state.sort === "featured" ? "selected" : ""}>Featured</option>
+          <option value="rating" ${state.sort === "rating" ? "selected" : ""}>Highest rated</option>
+          <option value="price-low" ${state.sort === "price-low" ? "selected" : ""}>Price: low to high</option>
+          <option value="price-high" ${state.sort === "price-high" ? "selected" : ""}>Price: high to low</option>
+        </select>
+      </label>
+    </section>
+  `;
+}
+
+function trackingPanel() {
+  const latest = state.orders[0];
+  if (!latest) {
+    return `
+      <section class="tracking-panel">
+        <h2 class="panel-title">Order Tracking</h2>
+        <p class="muted">Place an order to see live status milestones here.</p>
+      </section>
+    `;
+  }
+  return `
+    <section class="tracking-panel">
+      <h2 class="panel-title">Order Tracking</h2>
+      <p class="line-title">${latest.id}</p>
+      <p class="muted">${latest.status} · ETA ${latest.eta}</p>
+      ${progress(latest.stage)}
+      <button class="text-button" data-action="open-drawer" data-drawer="orders">View all orders</button>
+    </section>
+  `;
+}
+
+function productCards() {
+  const items = filteredProducts();
+  if (!items.length) return `<div class="empty-state">No products match your filters.</div>`;
+  return items
+    .map((product) => {
+      const wished = state.wishlist.includes(product.id);
+      return `
+        <article class="product-card">
+          <div class="product-media">
+            <img src="${product.image}" alt="${product.name}" />
+            <button class="icon-button quick-heart ${wished ? "active" : ""}" data-action="toggle-wishlist" data-id="${product.id}" title="${wished ? "Remove from wishlist" : "Add to wishlist"}">${icon("heart")}</button>
+          </div>
+          <div class="product-info">
+            <div class="product-title-row">
+              <h3>${product.name}</h3>
+              <span class="price">${money(product.price)}</span>
+            </div>
+            <div class="rating-row"><span>${product.category}</span><span>${product.rating} stars · ${product.stock} in stock</span></div>
+            <div class="card-actions">
+              <button class="secondary-button" data-action="open-product" data-id="${product.id}">Details</button>
+              <button class="icon-button" data-action="add-cart" data-id="${product.id}" title="Add to cart">${icon("cart")}</button>
+            </div>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function drawer() {
+  const title = {
+    cart: "Shopping Cart",
+    wishlist: "Wishlist",
+    orders: "Order Tracking",
+    auth: "Account",
+  }[state.drawer];
+  return `
+    <aside class="drawer ${state.drawer ? "open" : ""}" aria-hidden="${state.drawer ? "false" : "true"}">
+      <div class="drawer-header">
+        <h2>${title ?? "Panel"}</h2>
+        <button class="icon-button" data-action="close-all" title="Close">${icon("close")}</button>
+      </div>
+      <div class="drawer-body">${drawerBody()}</div>
+      ${drawerFooter()}
+    </aside>
+  `;
+}
+
+function drawerBody() {
+  if (state.drawer === "cart") return cartBody();
+  if (state.drawer === "wishlist") return wishlistBody();
+  if (state.drawer === "orders") return ordersBody();
+  if (state.drawer === "auth") return authBody();
+  return "";
+}
+
+function drawerFooter() {
+  if (state.drawer !== "cart") return "";
+  const sum = totals();
+  return `
+    <div class="drawer-footer">
+      <div class="summary-row"><span>Subtotal</span><strong>${money(sum.subtotal)}</strong></div>
+      <div class="summary-row"><span>Estimated tax</span><strong>${money(sum.tax)}</strong></div>
+      <div class="summary-row"><span>Delivery</span><strong>${money(sum.delivery)}</strong></div>
+      <div class="summary-row total"><span>Total</span><strong>${money(sum.total)}</strong></div>
+      <button class="primary-button" data-action="checkout" ${sum.total ? "" : "disabled"}>${icon("check")} Secure checkout</button>
+    </div>
+  `;
+}
+
+function cartBody() {
+  const lines = cartLines();
+  if (!lines.length) return `<div class="empty-state">Your cart is ready when you are.</div>`;
+  return lines
+    .map(
+      ({ product, qty }) => `
+      <div class="cart-item">
+        <img src="${product.image}" alt="${product.name}" />
+        <div>
+          <p class="line-title">${product.name}</p>
+          <p class="muted">${money(product.price)} each</p>
+          <div class="line-actions">
+            <span class="qty-stepper">
+              <button data-action="dec-cart" data-id="${product.id}" title="Decrease">${icon("minus")}</button>
+              <span>${qty}</span>
+              <button data-action="add-cart" data-id="${product.id}" title="Increase">${icon("plus")}</button>
+            </span>
+            <button class="text-button" data-action="remove-cart" data-id="${product.id}">Remove</button>
+          </div>
+        </div>
+      </div>
+    `,
+    )
+    .join("");
+}
+
+function wishlistBody() {
+  const items = state.wishlist.map((id) => products.find((product) => product.id === id)).filter(Boolean);
+  if (!items.length) return `<div class="empty-state">Save products here for later.</div>`;
+  return items
+    .map(
+      (product) => `
+      <div class="wishlist-item">
+        <img src="${product.image}" alt="${product.name}" />
+        <div>
+          <p class="line-title">${product.name}</p>
+          <p class="muted">${money(product.price)} · ${product.category}</p>
+          <div class="line-actions">
+            <button class="secondary-button" data-action="add-cart" data-id="${product.id}">${icon("cart")} Add</button>
+            <button class="text-button" data-action="toggle-wishlist" data-id="${product.id}">Remove</button>
+          </div>
+        </div>
+      </div>
+    `,
+    )
+    .join("");
+}
+
+function ordersBody() {
+  if (!state.user) return `<div class="empty-state">Sign in to view and track orders.</div>`;
+  if (!state.orders.length) return `<div class="empty-state">Your order history will appear here.</div>`;
+  return state.orders
+    .map(
+      (order) => `
+      <article class="order-card">
+        <div class="summary-row"><strong>${order.id}</strong><span>${money(order.total)}</span></div>
+        <p class="muted">${order.status} · Placed ${order.createdAt} · ETA ${order.eta}</p>
+        ${progress(order.stage)}
+        <div>${order.items
+          .map(
+            (line) => `
+              <div class="order-item">
+                <img src="${line.image}" alt="${line.name}" />
+                <div><p class="line-title">${line.name}</p><p class="muted">Qty ${line.qty} · ${money(line.price)}</p></div>
+              </div>
+            `,
+          )
+          .join("")}</div>
+      </article>
+    `,
+    )
+    .join("");
+}
+
+function authBody() {
+  if (state.user) {
+    return `
+      <div class="auth-panel">
+        <p class="line-title">${state.user.name}</p>
+        <p class="muted">${state.user.email}</p>
+        <button class="danger-button" data-action="logout">Sign out</button>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="auth-panel">
+      <div class="auth-tabs">
+        <button class="${state.authMode === "login" ? "active" : ""}" data-action="auth-mode" data-mode="login">Login</button>
+        <button class="${state.authMode === "signup" ? "active" : ""}" data-action="auth-mode" data-mode="signup">Signup</button>
+      </div>
+      <form class="form-grid" id="authForm">
+        ${state.authMode === "signup" ? `<label class="span-2">Full name<input name="name" required placeholder="Alex Morgan" /></label>` : ""}
+        <label class="span-2">Email<input name="email" type="email" required placeholder="alex@example.com" /></label>
+        <label class="span-2">Password<input name="password" type="password" required minlength="4" placeholder="Use any 4+ characters" /></label>
+        <button class="primary-button span-2" type="submit">${state.authMode === "login" ? "Login" : "Create account"}</button>
+      </form>
+    </div>
+  `;
+}
+
+function modal() {
+  if (state.modal?.type === "product") return productModal(state.modal.id);
+  if (state.modal?.type === "checkout") return checkoutModal();
+  if (state.modal?.type === "success") return successModal(state.modal.orderId);
+  return `<div class="modal-wrap"></div>`;
+}
+
+function productModal(id) {
+  const product = products.find((item) => item.id === id);
+  if (!product) return `<div class="modal-wrap"></div>`;
+  const wished = state.wishlist.includes(id);
+  return `
+    <div class="modal-wrap open">
+      <article class="modal-panel">
+        <div class="modal-header">
+          <h2>Product Details</h2>
+          <button class="icon-button" data-action="close-all" title="Close">${icon("close")}</button>
+        </div>
+        <div class="modal-body detail-layout">
+          <img class="detail-image" src="${product.image}" alt="${product.name}" />
+          <div class="detail-copy">
+            <h2>${product.name}</h2>
+            <div class="price">${money(product.price)}</div>
+            <p>${product.description}</p>
+            <div class="pill-row">
+              <span class="pill">${product.category}</span>
+              <span class="pill">${product.rating} stars</span>
+              <span class="pill">${product.stock} in stock</span>
+            </div>
+            <h3>Highlights</h3>
+            <div class="pill-row">${product.specs.map((spec) => `<span class="pill">${spec}</span>`).join("")}</div>
+            <div class="line-actions">
+              <button class="primary-button" data-action="add-cart" data-id="${product.id}">${icon("cart")} Add to cart</button>
+              <button class="secondary-button" data-action="toggle-wishlist" data-id="${product.id}">${icon("heart")} ${wished ? "Saved" : "Wishlist"}</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  `;
+}
+
+function checkoutModal() {
+  const sum = totals();
+  return `
+    <div class="modal-wrap open">
+      <article class="modal-panel">
+        <div class="modal-header">
+          <h2>Checkout</h2>
+          <button class="icon-button" data-action="close-all" title="Close">${icon("close")}</button>
+        </div>
+        <div class="modal-body checkout-layout">
+          <form class="checkout-panel form-grid" id="checkoutForm">
+            <label>Full name<input name="name" required value="${state.user?.name ?? ""}" /></label>
+            <label>Email<input name="email" type="email" required value="${state.user?.email ?? ""}" /></label>
+            <label class="span-2">Shipping address<textarea name="address" required rows="3" placeholder="Street, city, state, ZIP"></textarea></label>
+            <label>Sandbox card<input name="card" required inputmode="numeric" maxlength="19" value="4242 4242 4242 4242" /></label>
+            <label>Expiry<input name="expiry" required value="12/30" /></label>
+            <label>CVV<input name="cvv" required inputmode="numeric" maxlength="4" value="123" /></label>
+            <label>Gateway<input name="gateway" required value="Stripe Test Gateway" /></label>
+            <div class="sandbox-box span-2">
+              <strong>Sandbox payment API</strong>
+              <span>Uses a simulated gateway endpoint: <code>POST /sandbox/payments/intents</code>. Test card <code>4242 4242 4242 4242</code> succeeds; cards ending in <code>0002</code> decline.</span>
+            </div>
+            <button class="primary-button span-2" type="submit">${icon("check")} Pay ${money(sum.total)}</button>
+          </form>
+          <aside class="checkout-panel">
+            <h3 class="panel-title">Order Summary</h3>
+            ${cartLines().map(({ product, qty }) => `<div class="summary-row"><span>${product.name} x ${qty}</span><strong>${money(product.price * qty)}</strong></div>`).join("")}
+            <hr />
+            <div class="summary-row"><span>Subtotal</span><strong>${money(sum.subtotal)}</strong></div>
+            <div class="summary-row"><span>Tax</span><strong>${money(sum.tax)}</strong></div>
+            <div class="summary-row"><span>Delivery</span><strong>${money(sum.delivery)}</strong></div>
+            <div class="summary-row total"><span>Total</span><strong>${money(sum.total)}</strong></div>
+          </aside>
+        </div>
+      </article>
+    </div>
+  `;
+}
+
+function successModal(orderId) {
+  return `
+    <div class="modal-wrap open">
+      <article class="modal-panel">
+        <div class="modal-header">
+          <h2>Payment Successful</h2>
+          <button class="icon-button" data-action="close-all" title="Close">${icon("close")}</button>
+        </div>
+        <div class="modal-body">
+          <div class="empty-state">
+            <div>
+              <h2>Order ${orderId} is confirmed.</h2>
+              <p>Your sandbox payment was authorized and the order is now available in tracking.</p>
+              <button class="primary-button" data-action="open-drawer" data-drawer="orders">${icon("truck")} Track order</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  `;
+}
+
+function progress(stage) {
+  return `<div class="progress" aria-label="Order progress">${[1, 2, 3, 4].map((step) => `<span class="progress-step ${step <= stage ? "done" : ""}"></span>`).join("")}</div>`;
+}
+
+function bindInputs() {
+  document.querySelector("#searchInput")?.addEventListener("input", (event) => {
+    state.search = event.target.value;
+    render();
+  });
+  document.querySelector("#priceRange")?.addEventListener("input", (event) => {
+    state.maxPrice = Number(event.target.value);
+    render();
+  });
+  document.querySelector("#sortSelect")?.addEventListener("change", (event) => {
+    state.sort = event.target.value;
+    render();
+  });
+  document.querySelector("#authForm")?.addEventListener("submit", handleAuth);
+  document.querySelector("#checkoutForm")?.addEventListener("submit", handleCheckout);
+}
+
+document.addEventListener("click", (event) => {
+  const target = event.target.closest("[data-action]");
+  if (!target) return;
+  const { action, id, drawer: drawerName, category, mode } = target.dataset;
+
+  if (action === "open-drawer") {
+    state.drawer = drawerName;
+    if (drawerName === "orders" && state.modal?.type === "success") state.modal = null;
+    render();
+  }
+  if (action === "close-all") {
+    state.drawer = null;
+    state.modal = null;
+    render();
+  }
+  if (action === "set-category") {
+    state.category = category;
+    render();
+  }
+  if (action === "open-product") {
+    state.modal = { type: "product", id };
+    render();
+  }
+  if (action === "toggle-wishlist") toggleWishlist(id);
+  if (action === "add-cart") addCart(id);
+  if (action === "dec-cart") decCart(id);
+  if (action === "remove-cart") removeCart(id);
+  if (action === "checkout") checkout();
+  if (action === "auth-mode") {
+    state.authMode = mode;
+    render();
+  }
+  if (action === "logout") {
+    state.user = null;
+    persist();
+    render();
+    toast("Signed out.");
+  }
+});
+
+function toggleWishlist(id) {
+  state.wishlist = state.wishlist.includes(id) ? state.wishlist.filter((item) => item !== id) : [...state.wishlist, id];
+  persist();
+  render();
+}
+
+function addCart(id) {
+  const product = products.find((item) => item.id === id);
+  if (!product) return;
+  state.cart[id] = Math.min((state.cart[id] ?? 0) + 1, product.stock);
+  persist();
+  render();
+  toast(`${product.name} added to cart.`);
+}
+
+function decCart(id) {
+  state.cart[id] = (state.cart[id] ?? 0) - 1;
+  if (state.cart[id] <= 0) delete state.cart[id];
+  persist();
+  render();
+}
+
+function removeCart(id) {
+  delete state.cart[id];
+  persist();
+  render();
+}
+
+function checkout() {
+  if (!cartLines().length) return;
+  if (!state.user) {
+    state.drawer = "auth";
+    render();
+    toast("Please login or create an account before checkout.");
+    return;
+  }
+  state.drawer = null;
+  state.modal = { type: "checkout" };
+  render();
+}
+
+function handleAuth(event) {
+  event.preventDefault();
+  const form = new FormData(event.target);
+  const email = String(form.get("email")).trim().toLowerCase();
+  const password = String(form.get("password"));
+  let message = "";
+
+  if (state.authMode === "signup") {
+    if (state.users.some((user) => user.email === email)) {
+      toast("An account with that email already exists.");
+      return;
+    }
+    const user = { name: String(form.get("name")).trim(), email, password };
+    state.users.push(user);
+    state.user = { name: user.name, email: user.email };
+    message = "Account created.";
+  } else {
+    const user = state.users.find((account) => account.email === email && account.password === password);
+    if (!user) {
+      toast("No matching account found. Try signup first.");
+      return;
+    }
+    state.user = { name: user.name, email: user.email };
+    message = "Welcome back.";
+  }
+
+  persist();
+  render();
+  toast(message);
+}
+
+async function handleCheckout(event) {
+  event.preventDefault();
+  const form = new FormData(event.target);
+  const card = String(form.get("card")).replace(/\s/g, "");
+  const payButton = event.target.querySelector("button[type='submit']");
+  payButton.disabled = true;
+  payButton.textContent = "Authorizing sandbox payment...";
+
+  try {
+    const payment = await sandboxPaymentIntent({
+      amount: Math.round(totals().total * 100),
+      currency: "usd",
+      card,
+      customer: state.user.email,
+    });
+    const order = createOrder(payment.id, form);
+    state.orders.unshift(order);
+    state.cart = {};
+    persist();
+    state.modal = { type: "success", orderId: order.id };
+    render();
+    toast("Sandbox payment authorized.");
+  } catch (error) {
+    render();
+    toast(error.message);
+  }
+}
+
+function sandboxPaymentIntent(payload) {
+  return new Promise((resolve, reject) => {
+    window.setTimeout(() => {
+      if (payload.card.endsWith("0002")) {
+        reject(new Error("Sandbox gateway declined this test card."));
+        return;
+      }
+      resolve({
+        id: `pi_test_${crypto.getRandomValues(new Uint32Array(1))[0].toString(16)}`,
+        status: "succeeded",
+        amount: payload.amount,
+      });
+    }, 900);
+  });
+}
+
+function createOrder(paymentId, form) {
+  const today = new Date();
+  const eta = new Date(today.getTime() + 4 * 24 * 60 * 60 * 1000);
+  return {
+    id: `ORD-${String(Date.now()).slice(-6)}`,
+    paymentId,
+    status: "Preparing shipment",
+    stage: 2,
+    total: totals().total,
+    createdAt: today.toLocaleDateString(),
+    eta: eta.toLocaleDateString(),
+    shipTo: String(form.get("address")),
+    items: cartLines().map(({ product, qty }) => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      qty,
+    })),
+  };
+}
+
+function toast(message) {
+  const stack = document.querySelector("#toastStack");
+  if (!stack) return;
+  const notice = document.createElement("div");
+  notice.className = "toast";
+  notice.textContent = message;
+  stack.append(notice);
+  setTimeout(() => notice.remove(), 2600);
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+render();
+
+
+ </script>
+ 

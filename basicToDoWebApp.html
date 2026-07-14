@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do Web App</title>
+  <link rel="stylesheet" href="style.css">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a, #0ea5e9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.todo-container {
+  width: 100%;
+  max-width: 900px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+h1 {
+  text-align: center;
+  color: #0f172a;
+  margin-bottom: 25px;
+}
+
+.input-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.input-section input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.input-section button {
+  padding: 12px 20px;
+  border: none;
+  background: #0ea5e9;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.input-section button:hover {
+  background: #0284c7;
+}
+
+.task-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+.task-box {
+  background: #f1f5f9;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.task-box h2 {
+  margin-bottom: 15px;
+  color: #0f172a;
+  text-align: center;
+}
+
+ul {
+  list-style: none;
+}
+
+li {
+  background: white;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border-left: 5px solid #0ea5e9;
+}
+
+.task-text {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.task-time {
+  display: block;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.task-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.task-buttons button {
+  border: none;
+  padding: 7px 10px;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.complete-btn {
+  background: #22c55e;
+}
+
+.edit-btn {
+  background: #f59e0b;
+}
+
+.delete-btn {
+  background: #ef4444;
+}
+
+@media (max-width: 700px) {
+  .input-section,
+  .task-sections {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+}
+
+</style>
+
+</head>
+<body>
+
+  <div class="todo-container">
+    <h1>To-Do Web App</h1>
+
+    <div class="input-section">
+      <input type="text" id="taskInput" placeholder="Enter a new task">
+      <button onclick="addTask()">Add Task</button>
+    </div>
+
+    <div class="task-sections">
+      <div class="task-box">
+        <h2>Pending Tasks</h2>
+        <ul id="pendingTasks"></ul>
+      </div>
+
+      <div class="task-box">
+        <h2>Completed Tasks</h2>
+        <ul id="completedTasks"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+<script>
+
+const taskInput = document.getElementById("taskInput");
+const pendingTasks = document.getElementById("pendingTasks");
+const completedTasks = document.getElementById("completedTasks");
+
+function addTask() {
+  const taskText = taskInput.value.trim();
+
+  if (taskText === "") {
+    alert("Please enter a task.");
+    return;
+  }
+
+  const task = {
+    text: taskText,
+    addedTime: new Date().toLocaleString(),
+    completedTime: null
+  };
+
+  createTaskElement(task, false);
+  taskInput.value = "";
+}
+
+function createTaskElement(task, isCompleted) {
+  const li = document.createElement("li");
+
+  const textSpan = document.createElement("span");
+  textSpan.className = "task-text";
+  textSpan.textContent = task.text;
+
+  const timeSpan = document.createElement("span");
+  timeSpan.className = "task-time";
+  timeSpan.textContent = isCompleted
+    ? `Added: ${task.addedTime} | Completed: ${task.completedTime}`
+    : `Added: ${task.addedTime}`;
+
+  const buttonBox = document.createElement("div");
+  buttonBox.className = "task-buttons";
+
+  if (!isCompleted) {
+    const completeBtn = document.createElement("button");
+    completeBtn.textContent = "Complete";
+    completeBtn.className = "complete-btn";
+
+    completeBtn.onclick = function () {
+      task.completedTime = new Date().toLocaleString();
+      li.remove();
+      createTaskElement(task, true);
+    };
+
+    buttonBox.appendChild(completeBtn);
+  }
+
+  const editBtn = document.createElement("button");
+  editBtn.textContent = "Edit";
+  editBtn.className = "edit-btn";
+
+  editBtn.onclick = function () {
+    const newText = prompt("Edit task:", task.text);
+
+    if (newText !== null && newText.trim() !== "") {
+      task.text = newText.trim();
+      textSpan.textContent = task.text;
+    }
+  };
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "Delete";
+  deleteBtn.className = "delete-btn";
+
+  deleteBtn.onclick = function () {
+    li.remove();
+  };
+
+  buttonBox.appendChild(editBtn);
+  buttonBox.appendChild(deleteBtn);
+
+  li.appendChild(textSpan);
+  li.appendChild(timeSpan);
+  li.appendChild(buttonBox);
+
+  if (isCompleted) {
+    completedTasks.appendChild(li);
+  } else {
+    pendingTasks.appendChild(li);
+  }
+}
+
+taskInput.addEventListener("keypress", function (event) {
+  if (event.key === "Enter") {
+    addTask();
+  }
+});
+
+</script>

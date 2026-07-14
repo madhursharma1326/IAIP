@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Portal</title>
+
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; background: #f4f7fb; color: #1d3557; }
+    header { background: #08264a; color: white; padding: 25px; text-align: center; }
+    header h1 { margin: 0; text-decoration: underline; }
+    nav { background: white; padding: 15px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; box-shadow: 0 2px 8px #0002; }
+    button { border: 0; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    nav button, .btn { padding: 10px 16px; background: #08264a; color: white; }
+    nav button:hover, .btn:hover { background: #1d5f8a; }
+    .container { max-width: 1100px; margin: 25px auto; padding: 15px; }
+    .section { display: none; background: white; padding: 25px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 3px 12px #0001; }
+    .section.active { display: block; }
+    input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; font-size: 15px; }
+    textarea { min-height: 90px; resize: vertical; }
+    .search-box, .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+    .dashboard { grid-template-columns: repeat(3, 1fr); }
+    .card { border: 1px solid #ddd; padding: 18px; margin: 15px 0; border-radius: 8px; background: #f9fbfd; }
+    .card h3 { margin: 0 0 10px; color: #08264a; }
+    .tag { display: inline-block; background: #e0f2fe; color: #075985; padding: 5px 10px; border-radius: 20px; font-size: 13px; margin: 5px 5px 5px 0; }
+    .danger { background: #e63946; color: white; }
+    .success { background: #2a9d8f; color: white; }
+    .edit { background: #f4a261; color: white; }
+    .box { background: #08264a; color: white; padding: 20px; border-radius: 8px; text-align: center; }
+    .box h3 { font-size: 30px; margin: 0; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+
+    @media (max-width: 700px) {
+      .search-box, .dashboard { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Intern Alpha Job Portal</h1>
+    <p>Admin, Recruiter, Candidate</p>
+  </header>
+
+  <nav>
+    <button onclick="showSection('users')">Users</button>
+    <button onclick="showSection('postJob')">Post Job</button>
+    <button onclick="showSection('jobs')">Jobs</button>
+    <button onclick="showSection('applications')">Applications</button>
+    <button onclick="showSection('admin')">Dashboard</button>
+  </nav>
+
+  <div class="container">
+    <section id="users" class="section active">
+      <h2>User Roles</h2>
+
+      <input id="userName" placeholder="Enter name" />
+      <input id="userEmail" type="email" placeholder="Enter email" />
+
+      <select id="userRole">
+        <option>Candidate</option>
+        <option>Recruiter</option>
+        <option>Admin</option>
+      </select>
+
+      <button class="btn" id="userSubmitBtn" onclick="addOrUpdateUser()">Add User</button>
+      <input type="hidden" id="editUserId" />
+
+      <div id="userList"></div>
+    </section>
+
+    <section id="postJob" class="section">
+      <h2>Post Job</h2>
+
+      <input id="jobTitle" placeholder="Job title" />
+      <input id="companyName" placeholder="Company name" />
+      <input id="jobLocation" placeholder="Location" />
+
+      <select id="jobType">
+        <option>Full Time</option>
+        <option>Part Time</option>
+        <option>Internship</option>
+        <option>Remote</option>
+      </select>
+
+      <textarea id="jobDescription" placeholder="Job description"></textarea>
+
+      <button class="btn" id="jobSubmitBtn" onclick="addOrUpdateJob()">Post Job</button>
+      <input type="hidden" id="editJobId" />
+    </section>
+
+    <section id="jobs" class="section">
+      <h2>Search Jobs</h2>
+
+      <div class="search-box">
+        <input id="searchInput" placeholder="Search job, company, location" onkeyup="displayJobs()" />
+
+        <select id="filterType" onchange="displayJobs()">
+          <option value="">All Job Types</option>
+          <option>Full Time</option>
+          <option>Part Time</option>
+          <option>Internship</option>
+          <option>Remote</option>
+        </select>
+      </div>
+
+      <div id="jobList"></div>
+    </section>
+
+    <section id="applications" class="section">
+      <h2>Applications</h2>
+      <div id="applicationList"></div>
+    </section>
+
+    <section id="admin" class="section">
+      <h2>Admin Dashboard</h2>
+
+      <div class="dashboard">
+        <div class="box"><h3 id="totalUsers">0</h3><p>Total Users</p></div>
+        <div class="box"><h3 id="totalJobs">0</h3><p>Total Jobs</p></div>
+        <div class="box"><h3 id="totalApplications">0</h3><p>Applications</p></div>
+      </div>
+
+      <h3>All Users</h3>
+      <div id="adminUsers"></div>
+
+      <h3>All Jobs</h3>
+      <div id="adminJobs"></div>
+    </section>
+  </div>
+
+  <script>
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    let jobs = JSON.parse(localStorage.getItem("jobs")) || [];
+    let applications = JSON.parse(localStorage.getItem("applications")) || [];
+
+    function saveData() {
+      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem("jobs", JSON.stringify(jobs));
+      localStorage.setItem("applications", JSON.stringify(applications));
+    }
+
+    function showSection(id) {
+      document.querySelectorAll(".section").forEach(section => {
+        section.classList.remove("active");
+      });
+
+      document.getElementById(id).classList.add("active");
+      refreshPage();
+    }
+
+    function addOrUpdateUser() {
+      const editId = document.getElementById("editUserId").value;
+      const name = document.getElementById("userName").value.trim();
+      const email = document.getElementById("userEmail").value.trim();
+      const role = document.getElementById("userRole").value;
+
+      if (!name || !email) {
+        alert("Please fill all user details");
+        return;
+      }
+
+      if (editId) {
+        users = users.map(user => {
+          if (user.id == editId) {
+            return { id: user.id, name, email, role };
+          }
+          return user;
+        });
+
+        document.getElementById("userSubmitBtn").innerText = "Add User";
+        document.getElementById("editUserId").value = "";
+      } else {
+        users.push({
+          id: Date.now(),
+          name,
+          email,
+          role
+        });
+      }
+
+      document.getElementById("userName").value = "";
+      document.getElementById("userEmail").value = "";
+
+      saveData();
+      refreshPage();
+    }
+
+    function editUser(id) {
+      const user = users.find(item => item.id === id);
+
+      document.getElementById("userName").value = user.name;
+      document.getElementById("userEmail").value = user.email;
+      document.getElementById("userRole").value = user.role;
+      document.getElementById("editUserId").value = user.id;
+      document.getElementById("userSubmitBtn").innerText = "Update User";
+
+      showSection("users");
+    }
+
+    function deleteUser(id) {
+      users = users.filter(user => user.id !== id);
+      saveData();
+      refreshPage();
+    }
+
+    function displayUsers() {
+      const userList = document.getElementById("userList");
+
+      userList.innerHTML = users.map(user => `
+        <div class="card">
+          <strong>${user.name}</strong><br>
+          Email: ${user.email}<br>
+          Role: <span class="tag">${user.role}</span>
+
+          <div class="actions">
+            <button class="btn edit" onclick="editUser(${user.id})">Edit User</button>
+            <button class="btn danger" onclick="deleteUser(${user.id})">Delete User</button>
+          </div>
+        </div>
+      `).join("") || "<p>No users added.</p>";
+    }
+
+    function addOrUpdateJob() {
+      const editId = document.getElementById("editJobId").value;
+      const title = document.getElementById("jobTitle").value.trim();
+      const company = document.getElementById("companyName").value.trim();
+      const location = document.getElementById("jobLocation").value.trim();
+      const type = document.getElementById("jobType").value;
+      const description = document.getElementById("jobDescription").value.trim();
+
+      if (!title || !company || !location || !description) {
+        alert("Please fill all job details");
+        return;
+      }
+
+      if (editId) {
+        jobs = jobs.map(job => {
+          if (job.id == editId) {
+            return {
+              id: job.id,
+              title,
+              company,
+              location,
+              type,
+              description
+            };
+          }
+          return job;
+        });
+
+        applications = applications.map(app => {
+          if (app.jobId == editId) {
+            app.jobTitle = title;
+          }
+          return app;
+        });
+
+        document.getElementById("jobSubmitBtn").innerText = "Post Job";
+        document.getElementById("editJobId").value = "";
+      } else {
+        jobs.push({
+          id: Date.now(),
+          title,
+          company,
+          location,
+          type,
+          description
+        });
+      }
+
+      document.getElementById("jobTitle").value = "";
+      document.getElementById("companyName").value = "";
+      document.getElementById("jobLocation").value = "";
+      document.getElementById("jobDescription").value = "";
+
+      saveData();
+      refreshPage();
+      alert(editId ? "Job updated successfully" : "Job posted successfully");
+    }
+
+    function editJob(id) {
+      const job = jobs.find(item => item.id === id);
+
+      document.getElementById("jobTitle").value = job.title;
+      document.getElementById("companyName").value = job.company;
+      document.getElementById("jobLocation").value = job.location;
+      document.getElementById("jobType").value = job.type;
+      document.getElementById("jobDescription").value = job.description;
+      document.getElementById("editJobId").value = job.id;
+      document.getElementById("jobSubmitBtn").innerText = "Update Job";
+
+      showSection("postJob");
+    }
+
+    function deleteJob(id) {
+      jobs = jobs.filter(job => job.id !== id);
+      applications = applications.filter(app => app.jobId !== id);
+
+      saveData();
+      refreshPage();
+    }
+
+    function displayJobs() {
+      const jobList = document.getElementById("jobList");
+      const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
+      const filter = document.getElementById("filterType")?.value || "";
+
+      const filteredJobs = jobs.filter(job => {
+        const matchSearch =
+          job.title.toLowerCase().includes(search) ||
+          job.company.toLowerCase().includes(search) ||
+          job.location.toLowerCase().includes(search);
+
+        const matchFilter = filter === "" || job.type === filter;
+
+        return matchSearch && matchFilter;
+      });
+
+      jobList.innerHTML = filteredJobs.map(job => `
+        <div class="card">
+          <h3>${job.title}</h3>
+          <p><strong>Company:</strong> ${job.company}</p>
+          <p><strong>Location:</strong> ${job.location}</p>
+          <span class="tag">${job.type}</span>
+          <p>${job.description}</p>
+
+          <input id="candidateName-${job.id}" placeholder="Candidate name" />
+          <input id="candidateEmail-${job.id}" type="email" placeholder="Candidate email" />
+          <input id="resume-${job.id}" type="file" />
+
+          <div class="actions">
+            <button class="btn success" onclick="applyJob(${job.id})">Apply Now</button>
+            <button class="btn edit" onclick="editJob(${job.id})">Edit Job</button>
+            <button class="btn danger" onclick="deleteJob(${job.id})">Delete Job</button>
+          </div>
+        </div>
+      `).join("") || "<p>No jobs found.</p>";
+    }
+
+    function applyJob(jobId) {
+      const name = document.getElementById("candidateName-" + jobId).value.trim();
+      const email = document.getElementById("candidateEmail-" + jobId).value.trim();
+      const resumeInput = document.getElementById("resume-" + jobId);
+      const resume = resumeInput.files[0];
+
+      if (!name || !email || !resume) {
+        alert("Please enter candidate details and upload resume");
+        return;
+      }
+
+      const job = jobs.find(item => item.id === jobId);
+
+      applications.push({
+        id: Date.now(),
+        jobId,
+        candidateName: name,
+        candidateEmail: email,
+        resumeName: resume.name,
+        jobTitle: job.title,
+        status: "Applied"
+      });
+
+      saveData();
+      refreshPage();
+      alert("Application submitted successfully");
+    }
+
+    function deleteApplication(id) {
+      applications = applications.filter(app => app.id !== id);
+
+      saveData();
+      refreshPage();
+    }
+
+    function displayApplications() {
+      const applicationList = document.getElementById("applicationList");
+
+      applicationList.innerHTML = applications.map(app => `
+        <div class="card">
+          <strong>${app.candidateName}</strong><br>
+          Email: ${app.candidateEmail}<br>
+          Job: ${app.jobTitle}<br>
+          Resume: ${app.resumeName}<br>
+          Status: <span class="tag">${app.status}</span>
+
+          <select id="status-${app.id}">
+            <option ${app.status === "Applied" ? "selected" : ""}>Applied</option>
+            <option ${app.status === "Shortlisted" ? "selected" : ""}>Shortlisted</option>
+            <option ${app.status === "Rejected" ? "selected" : ""}>Rejected</option>
+            <option ${app.status === "Hired" ? "selected" : ""}>Hired</option>
+          </select>
+
+          <div class="actions">
+            <button class="btn edit" onclick="updateStatus(${app.id})">Update Status</button>
+            <button class="btn danger" onclick="deleteApplication(${app.id})">Delete Application</button>
+          </div>
+        </div>
+      `).join("") || "<p>No applications yet.</p>";
+    }
+
+    function updateStatus(id) {
+      const status = document.getElementById("status-" + id).value;
+
+      applications = applications.map(app => {
+        if (app.id === id) {
+          app.status = status;
+        }
+        return app;
+      });
+
+      saveData();
+      refreshPage();
+      alert("Status updated");
+    }
+
+    function updateDashboard() {
+      document.getElementById("totalUsers").innerText = users.length;
+      document.getElementById("totalJobs").innerText = jobs.length;
+      document.getElementById("totalApplications").innerText = applications.length;
+
+      document.getElementById("adminUsers").innerHTML = users.map(user => `
+        <div class="card">
+          ${user.name} - ${user.email}
+          <span class="tag">${user.role}</span>
+
+          <div class="actions">
+            <button class="btn edit" onclick="editUser(${user.id})">Edit User</button>
+            <button class="btn danger" onclick="deleteUser(${user.id})">Delete User</button>
+          </div>
+        </div>
+      `).join("") || "<p>No users added.</p>";
+
+      document.getElementById("adminJobs").innerHTML = jobs.map(job => `
+        <div class="card">
+          <strong>${job.title}</strong> at ${job.company}
+
+          <div class="actions">
+            <button class="btn edit" onclick="editJob(${job.id})">Edit Job</button>
+            <button class="btn danger" onclick="deleteJob(${job.id})">Delete Job</button>
+          </div>
+        </div>
+      `).join("") || "<p>No jobs posted.</p>";
+    }
+
+    function refreshPage() {
+      displayUsers();
+      displayJobs();
+      displayApplications();
+      updateDashboard();
+    }
+
+    refreshPage();
+  </script>
+</body>
+</html>

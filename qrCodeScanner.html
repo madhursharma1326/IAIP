@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Code Scanner</title>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #08264a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 15px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 650px;
+      background: white;
+      color: #08264a;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      text-decoration: underline;
+    }
+
+    #reader {
+      width: 100%;
+      margin: 20px auto;
+      border: 2px solid #08264a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    button,
+    a {
+      border: none;
+      padding: 12px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    button {
+      background: #08264a;
+      color: white;
+    }
+
+    .stop {
+      background: #e63946;
+    }
+
+    .copy {
+      background: #2a9d8f;
+    }
+
+    .open-link {
+      background: #f4a261;
+      color: white;
+    }
+
+    .result-box {
+      background: #f4f7fb;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 15px;
+      min-height: 120px;
+    }
+
+    .result-box h3 {
+      margin-top: 0;
+    }
+
+    #result {
+      word-break: break-word;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .history {
+      margin-top: 20px;
+    }
+
+    .history-item {
+      background: #eef3f8;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      word-break: break-word;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #08264a;
+      border-radius: 5px;
+      margin-top: 15px;
+      font-size: 15px;
+    }
+
+    @media (max-width: 500px) {
+      .buttons {
+        flex-direction: column;
+      }
+
+      button,
+      a {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <h1>QR Code Scanner</h1>
+
+    <div class="buttons">
+      <button onclick="startScanner()">Start Scanner</button>
+      <button class="stop" onclick="stopScanner()">Stop Scanner</button>
+      <button class="copy" onclick="copyResult()">Copy Result</button>
+      <button class="stop" onclick="clearHistory()">Clear History</button>
+    </div>
+
+    <div id="reader"></div>
+
+    <div class="result-box">
+      <h3>Scanned Result</h3>
+      <p id="result">No QR code scanned yet.</p>
+      <div id="actionArea"></div>
+    </div>
+
+    <input
+      type="text"
+      id="manualInput"
+      placeholder="Optional: paste QR text/link here to test"
+      oninput="manualCheck()"
+    />
+
+    <div class="history">
+      <h3>Scan History</h3>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <script>
+    let scanner;
+    let lastResult = "";
+    let scanHistory = JSON.parse(localStorage.getItem("qrHistory")) || [];
+
+    function startScanner() {
+      if (scanner) {
+        alert("Scanner already started");
+        return;
+      }
+
+      scanner = new Html5Qrcode("reader");
+
+      scanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: {
+            width: 250,
+            height: 250
+          }
+        },
+        function(decodedText) {
+          handleResult(decodedText);
+        },
+        function(error) {
+          // Scanning errors are normal while camera is searching.
+        }
+      ).catch(function(error) {
+        alert("Camera error: " + error);
+      });
+    }
+
+    function stopScanner() {
+      if (!scanner) {
+        alert("Scanner is not running");
+        return;
+      }
+
+      scanner.stop().then(function() {
+        scanner.clear();
+        scanner = null;
+      }).catch(function(error) {
+        alert("Stop error: " + error);
+      });
+    }
+
+    function handleResult(text) {
+      if (text === lastResult) return;
+
+      lastResult = text;
+
+      document.getElementById("result").innerText = text;
+
+      addToHistory(text);
+      showAction(text);
+    }
+
+    function showAction(text) {
+      const actionArea = document.getElementById("actionArea");
+      actionArea.innerHTML = "";
+
+      if (isLink(text)) {
+        actionArea.innerHTML = `
+          <a class="open-link" href="${text}" target="_blank">
+            Open Link
+          </a>
+        `;
+      } else if (text.startsWith("tel:")) {
+        actionArea.innerHTML = `
+          <a class="open-link" href="${text}">
+            Call Number
+          </a>
+        `;
+      } else if (text.startsWith("mailto:")) {
+        actionArea.innerHTML = `
+          <a class="open-link" href="${text}">
+            Send Email
+          </a>
+        `;
+      } else {
+        actionArea.innerHTML = `
+          <button class="copy" onclick="copyResult()">
+            Copy Text
+          </button>
+        `;
+      }
+    }
+
+    function isLink(text) {
+      return text.startsWith("http://") || text.startsWith("https://");
+    }
+
+    function copyResult() {
+      if (!lastResult) {
+        alert("No result to copy");
+        return;
+      }
+
+      navigator.clipboard.writeText(lastResult).then(function() {
+        alert("Result copied");
+      });
+    }
+
+    function addToHistory(text) {
+      scanHistory.unshift({
+        text: text,
+        time: new Date().toLocaleString()
+      });
+
+      scanHistory = scanHistory.slice(0, 10);
+
+      localStorage.setItem("qrHistory", JSON.stringify(scanHistory));
+      displayHistory();
+    }
+
+    function displayHistory() {
+      const historyList = document.getElementById("historyList");
+
+      if (scanHistory.length === 0) {
+        historyList.innerHTML = "<p>No scan history.</p>";
+        return;
+      }
+
+      historyList.innerHTML = scanHistory.map(function(item) {
+        return `
+          <div class="history-item">
+            <strong>${item.time}</strong><br>
+            ${item.text}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function clearHistory() {
+      scanHistory = [];
+      localStorage.removeItem("qrHistory");
+      displayHistory();
+    }
+
+    function manualCheck() {
+      const value = document.getElementById("manualInput").value.trim();
+
+      if (value) {
+        handleResult(value);
+      }
+    }
+
+    displayHistory();
+  </script>
+</body>
+</html>

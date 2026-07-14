@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic Stopwatch</title>
+
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family:Arial, Helvetica, sans-serif;
+    }
+
+    body{
+        height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    }
+
+    .container{
+        background:#fff;
+        padding:40px;
+        border-radius:15px;
+        text-align:center;
+        box-shadow:0 10px 25px rgba(0,0,0,.3);
+        width:350px;
+    }
+
+    h1{
+        margin-bottom:25px;
+        color:#333;
+    }
+
+    #display{
+        font-size:45px;
+        font-weight:bold;
+        margin-bottom:30px;
+        color:#222;
+    }
+
+    .buttons button{
+        padding:12px 22px;
+        margin:8px;
+        border:none;
+        border-radius:8px;
+        color:white;
+        font-size:16px;
+        cursor:pointer;
+        transition:.3s;
+    }
+
+    #start{
+        background:#28a745;
+    }
+
+    #pause{
+        background:#ffc107;
+        color:#000;
+    }
+
+    #reset{
+        background:#dc3545;
+    }
+
+    button:hover{
+        transform:scale(1.05);
+    }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <h1>⏱ Basic Stopwatch</h1>
+
+    <div id="display">00:00:000</div>
+
+    <div class="buttons">
+        <button id="start">Start</button>
+        <button id="pause">Pause</button>
+        <button id="reset">Reset</button>
+    </div>
+</div>
+
+<script>
+
+let startTime;
+let elapsedTime = 0;
+let timer;
+
+const display = document.getElementById("display");
+
+function updateDisplay(){
+    let time = Date.now() - startTime + elapsedTime;
+
+    let minutes = Math.floor(time / 60000);
+    let seconds = Math.floor((time % 60000) / 1000);
+    let milliseconds = time % 1000;
+
+    display.textContent =
+        String(minutes).padStart(2,'0') + ":" +
+        String(seconds).padStart(2,'0') + ":" +
+        String(milliseconds).padStart(3,'0');
+}
+
+document.getElementById("start").onclick = function(){
+    if(!timer){
+        startTime = Date.now();
+        timer = setInterval(updateDisplay,10);
+    }
+};
+
+document.getElementById("pause").onclick = function(){
+    if(timer){
+        clearInterval(timer);
+        timer = null;
+        elapsedTime += Date.now() - startTime;
+    }
+};
+
+document.getElementById("reset").onclick = function(){
+    clearInterval(timer);
+    timer = null;
+    elapsedTime = 0;
+    display.textContent = "00:00:000";
+};
+
+</script>
+
+</body>
+</html>

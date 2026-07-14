@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Chat Application</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #08264a;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .chat-app {
+      width: 100%;
+      max-width: 900px;
+      height: 90vh;
+      background: white;
+      color: #08264a;
+      border-radius: 10px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar {
+      background: #0f3b68;
+      color: white;
+      padding: 20px;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      text-decoration: underline;
+    }
+
+    .sidebar input {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .sidebar button,
+    .chat-form button,
+    .message button {
+      border: none;
+      padding: 10px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .sidebar button {
+      width: 100%;
+      background: #f4d35e;
+      color: #111;
+      margin-bottom: 10px;
+    }
+
+    .user-box {
+      background: #164b7c;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 15px;
+    }
+
+    .chat-area {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .chat-header {
+      background: #f4f7fb;
+      padding: 18px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .chat-header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .chat-header p {
+      margin: 5px 0 0;
+      color: #555;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background: #eef3f8;
+    }
+
+    .message {
+      max-width: 75%;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      background: white;
+      border: 1px solid #ddd;
+    }
+
+    .message.me {
+      margin-left: auto;
+      background: #d8f3dc;
+      border-color: #95d5b2;
+    }
+
+    .message strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #08264a;
+    }
+
+    .message p {
+      margin: 0 0 8px;
+      word-break: break-word;
+    }
+
+    .time {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .message-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .edit-btn {
+      background: #f4a261;
+      color: white;
+    }
+
+    .delete-btn {
+      background: #e63946;
+      color: white;
+    }
+
+    .chat-form {
+      display: flex;
+      gap: 10px;
+      padding: 15px;
+      border-top: 1px solid #ddd;
+      background: white;
+    }
+
+    .chat-form input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #08264a;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .chat-form button {
+      background: #08264a;
+      color: white;
+    }
+
+    .clear-btn {
+      background: #e63946 !important;
+      color: white !important;
+    }
+
+    @media (max-width: 700px) {
+      .chat-app {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 90vh;
+      }
+
+      .sidebar {
+        border-bottom: 1px solid #1d5f8a;
+      }
+
+      .message {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="chat-app">
+    <aside class="sidebar">
+      <h2>Chat Login</h2>
+
+      <input type="text" id="usernameInput" placeholder="Enter username" />
+      <button onclick="loginUser()">Login</button>
+
+      <button class="clear-btn" onclick="clearChat()">Clear Chat</button>
+
+      <div class="user-box">
+        <strong>Current User:</strong>
+        <p id="currentUser">No user logged in</p>
+      </div>
+
+      <div class="user-box">
+        <strong>Features:</strong>
+        <p>Login, send, edit, delete, save messages after refresh.</p>
+      </div>
+    </aside>
+
+    <main class="chat-area">
+      <div class="chat-header">
+        <h1>Simple Chat Application</h1>
+        <p>Real-time style chat interface using HTML, CSS and JavaScript</p>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <div class="chat-form">
+        <input type="text" id="messageInput" placeholder="Type your message..." />
+        <button id="sendBtn" onclick="sendOrUpdateMessage()">Send</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let currentUser = localStorage.getItem("currentUser") || "";
+    let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+    let editMessageId = null;
+
+    function saveData() {
+      localStorage.setItem("currentUser", currentUser);
+      localStorage.setItem("chatMessages", JSON.stringify(messages));
+    }
+
+    function loginUser() {
+      const username = document.getElementById("usernameInput").value.trim();
+
+      if (username === "") {
+        alert("Please enter username");
+        return;
+      }
+
+      currentUser = username;
+      document.getElementById("usernameInput").value = "";
+
+      saveData();
+      displayCurrentUser();
+      displayMessages();
+    }
+
+    function displayCurrentUser() {
+      document.getElementById("currentUser").innerText =
+        currentUser || "No user logged in";
+    }
+
+    function sendOrUpdateMessage() {
+      const input = document.getElementById("messageInput");
+      const text = input.value.trim();
+
+      if (currentUser === "") {
+        alert("Please login first");
+        return;
+      }
+
+      if (text === "") {
+        alert("Please type a message");
+        return;
+      }
+
+      if (editMessageId !== null) {
+        messages = messages.map(message => {
+          if (message.id === editMessageId) {
+            return {
+              ...message,
+              text: text,
+              edited: true
+            };
+          }
+
+          return message;
+        });
+
+        editMessageId = null;
+        document.getElementById("sendBtn").innerText = "Send";
+      } else {
+        messages.push({
+          id: Date.now(),
+          user: currentUser,
+          text: text,
+          time: new Date().toLocaleTimeString(),
+          edited: false
+        });
+      }
+
+      input.value = "";
+      saveData();
+      displayMessages();
+    }
+
+    function displayMessages() {
+      const messagesBox = document.getElementById("messages");
+
+      if (messages.length === 0) {
+        messagesBox.innerHTML = "<p>No messages yet. Start chatting!</p>";
+        return;
+      }
+
+      messagesBox.innerHTML = "";
+
+      messages.forEach(message => {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message";
+
+        if (message.user === currentUser) {
+          messageDiv.classList.add("me");
+        }
+
+        messageDiv.innerHTML = `
+          <strong>${message.user}</strong>
+          <p>${message.text}</p>
+          <span class="time">${message.time} ${message.edited ? "(edited)" : ""}</span>
+
+          ${
+            message.user === currentUser
+              ? `
+                <div class="message-actions">
+                  <button class="edit-btn" onclick="editMessage(${message.id})">Edit</button>
+                  <button class="delete-btn" onclick="deleteMessage(${message.id})">Delete</button>
+                </div>
+              `
+              : ""
+          }
+        `;
+
+        messagesBox.appendChild(messageDiv);
+      });
+
+      messagesBox.scrollTop = messagesBox.scrollHeight;
+    }
+
+    function editMessage(id) {
+      const message = messages.find(item => item.id === id);
+
+      if (!message || message.user !== currentUser) {
+        alert("You can edit only your own message");
+        return;
+      }
+
+      document.getElementById("messageInput").value = message.text;
+      document.getElementById("sendBtn").innerText = "Update";
+      editMessageId = id;
+    }
+
+    function deleteMessage(id) {
+      const message = messages.find(item => item.id === id);
+
+      if (!message || message.user !== currentUser) {
+        alert("You can delete only your own message");
+        return;
+      }
+
+      messages = messages.filter(item => item.id !== id);
+
+      if (editMessageId === id) {
+        editMessageId = null;
+        document.getElementById("messageInput").value = "";
+        document.getElementById("sendBtn").innerText = "Send";
+      }
+
+      saveData();
+      displayMessages();
+    }
+
+    function clearChat() {
+      if (confirm("Are you sure you want to clear all messages?")) {
+        messages = [];
+        editMessageId = null;
+        document.getElementById("messageInput").value = "";
+        document.getElementById("sendBtn").innerText = "Send";
+
+        saveData();
+        displayMessages();
+      }
+    }
+
+    document.getElementById("messageInput").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        sendOrUpdateMessage();
+      }
+    });
+
+    displayCurrentUser();
+    displayMessages();
+  </script>
+</body>
+</html>
