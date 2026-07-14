@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Portfolio</title>
+  <link rel="stylesheet" href="style.css">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f7fb;
+  color: #222;
+  line-height: 1.6;
+}
+
+header {
+  background-color: #102a43;
+  color: white;
+  text-align: center;
+  padding: 25px;
+}
+
+header h1 {
+  margin-bottom: 10px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 12px;
+  font-weight: bold;
+}
+
+nav a:hover {
+  color: #00c9a7;
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 50px;
+  background-color: white;
+}
+
+.hero img {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid #00c9a7;
+}
+
+.hero h2 {
+  font-size: 32px;
+  color: #102a43;
+  margin-bottom: 15px;
+}
+
+.hero p {
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+
+.btn {
+  display: inline-block;
+  background-color: #00c9a7;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.btn:hover {
+  background-color: #008f7a;
+}
+
+section {
+  padding: 40px 50px;
+}
+
+section h2 {
+  color: #102a43;
+  margin-bottom: 15px;
+}
+
+ul {
+  margin-left: 20px;
+}
+
+.project {
+  background-color: white;
+  padding: 20px;
+  margin: 15px 0;
+  border-left: 5px solid #00c9a7;
+  border-radius: 5px;
+}
+
+footer {
+  background-color: #102a43;
+  color: white;
+  text-align: center;
+  padding: 15px;
+}
+
+@media (max-width: 700px) {
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 30px;
+  }
+
+  section {
+    padding: 30px;
+  }
+
+  nav a {
+    display: inline-block;
+    margin: 6px;
+  }
+}
+
+</style>
+</head>
+
+
+
+<body>
+
+  <header>
+    <h1>My Portfolio</h1>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyh9ZR7j2Oi5JHGSIe2mt2cgeVlwQb4mXg3kXIaPgEJQ&s=10" alt="Profile Image">
+    <div>
+      <h2>Hello, I'm Madhur SHarma</h2>
+      <p>
+        I am a beginner web developer learning HTML and CSS.
+        This is my personal portfolio where I show my skills,
+        projects, resume, and contact information.
+      </p>
+      <a href="#contact" class="btn">Contact Me</a>
+    </div>
+  </section>
+
+  <section id="about">
+    <h2>About Me</h2>
+    <p>
+      I enjoy creating simple and attractive websites. I am currently
+      learning web development and improving my design and coding skills.
+    </p>
+  </section>
+
+  <section id="skills">
+    <h2>My Skills</h2>
+    <ul>
+      <li>HTML</li>
+      <li>CSS</li>
+      <li>JavaScript Basics</li>
+      <li>Responsive Design</li>
+    </ul>
+  </section>
+
+  <section id="projects">
+    <h2>My Projects</h2>
+    <div class="project">
+      <h3>Portfolio Website</h3>
+      <p>A personal portfolio made using HTML and CSS.</p>
+    </div>
+    <div class="project">
+      <h3>Landing Page</h3>
+      <p>A simple landing page design project.</p>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>Contact Me</h2>
+    <p>Email: madhursharma1326@example.com</p>
+    <p>Phone: +91 9259453563</p>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 Madhur SHarma. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
