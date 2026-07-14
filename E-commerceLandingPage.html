@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Commerce Landing Page</title>
+  <link rel="stylesheet" href="style.css">
+
+<style>
+    * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f7f8fc;
+  color: #222;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #111827;
+  padding: 20px 8%;
+}
+
+.logo {
+  color: #fff;
+  font-size: 28px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+}
+
+.nav-links a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav-links a:hover {
+  color: #f97316;
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 70px 8%;
+  background: linear-gradient(135deg, #fff7ed, #e0f2fe);
+}
+
+.hero-text {
+  max-width: 520px;
+}
+
+.hero-text h2 {
+  font-size: 48px;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+.hero-text p {
+  font-size: 18px;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.btn {
+  display: inline-block;
+  background: #f97316;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.btn:hover,
+.product-card button:hover,
+.login-section button:hover {
+  background: #ea580c;
+}
+
+.hero-image img {
+  width: 420px;
+  max-width: 100%;
+  border-radius: 12px;
+}
+
+.categories,
+.products,
+.login-section {
+  padding: 60px 8%;
+  text-align: center;
+}
+
+.categories h2,
+.products h2,
+.login-section h2 {
+  font-size: 34px;
+  margin-bottom: 35px;
+}
+
+.category-container,
+.product-container {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.category-card {
+  background: white;
+  padding: 30px;
+  width: 180px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  font-weight: bold;
+}
+
+.product-card {
+  background: white;
+  width: 260px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.product-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.product-card h3 {
+  margin: 15px 0 8px;
+}
+
+.product-card p {
+  color: #f97316;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.product-card button,
+.login-section button {
+  background: #f97316;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.login-section {
+  background: #111827;
+  color: white;
+}
+
+.login-section p {
+  margin-bottom: 20px;
+}
+
+.login-section form {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.login-section input {
+  padding: 12px;
+  width: 280px;
+  border: none;
+  border-radius: 5px;
+}
+
+footer {
+  background: #030712;
+  color: white;
+  text-align: center;
+  padding: 18px;
+}
+
+@media (max-width: 768px) {
+  .navbar,
+  .hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hero-text h2 {
+    font-size: 36px;
+  }
+}
+</style>
+
+
+</head>
+<body>
+
+  <header>
+    <nav class="navbar">
+      <h1 class="logo">ShopEase</h1>
+
+      <ul class="nav-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#products">Products</a></li>
+        <li><a href="#categories">Categories</a></li>
+        <li><a href="#login">Login</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-text">
+      <h2>Shop Smart, Live Better</h2>
+      <p>
+        Discover the latest fashion, electronics, accessories, and lifestyle
+        products at amazing prices.
+      </p>
+      <a href="#products" class="btn">Shop Now</a>
+    </div>
+
+    <div class="hero-image">
+      <img src="https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&w=900&q=80" alt="Shopping Bags">
+    </div>
+  </section>
+
+  <section id="categories" class="categories">
+    <h2>Shop by Category</h2>
+
+    <div class="category-container">
+      <div class="category-card">Fashion</div>
+      <div class="category-card">Electronics</div>
+      <div class="category-card">Beauty</div>
+      <div class="category-card">Home Decor</div>
+    </div>
+  </section>
+
+  <section id="products" class="products">
+    <h2>Featured Products</h2>
+
+    <div class="product-container">
+      <div class="product-card">
+        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80" alt="Shoes">
+        <h3>Running Shoes</h3>
+        <p>₹2,499</p>
+        <button>Add to Cart</button>
+      </div>
+
+      <div class="product-card">
+        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80" alt="Watch">
+        <h3>Smart Watch</h3>
+        <p>₹3,999</p>
+        <button>Add to Cart</button>
+      </div>
+
+      <div class="product-card">
+        <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=500&q=80" alt="Sunglasses">
+        <h3>Sunglasses</h3>
+        <p>₹999</p>
+        <button>Add to Cart</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="login" class="login-section">
+    <h2>Join ShopEase</h2>
+    <p>Sign up or log in for a personalized shopping experience.</p>
+
+    <form>
+      <input type="email" placeholder="Enter your email" required>
+      <button type="submit">Register</button>
+    </form>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 ShopEase. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
